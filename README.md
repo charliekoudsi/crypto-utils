@@ -14,5 +14,5 @@ git clone https://github.com/charliekoudsi/crypto-utils.git
 
 Navigate to /crypto-utils
 
-Refer to example.py for some examples.
+Refer to [example.py](https://github.com/charliekoudsi/crypto-utils/blob/master/example.py) for some examples.
 
