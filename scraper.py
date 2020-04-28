@@ -37,7 +37,7 @@ class Scraper:
         '''
         Get list of all markets on FTX
         '''
-        resp = requests.get(self.base_url).json()['result']
+        resp = requests.get(self.base_url[:-1]).json()['result']
         return [r['name'] for r in resp]
     
     def get_perp(self):
@@ -45,6 +45,6 @@ class Scraper:
         Get list of all perpetual contracts on FTX
         '''
         markets = self.get_all_markets()
-        perp = [m for m in markets if m.split('-')[1] == 'PERP']
+        perp = [m for m in markets if len(m.split('-')) == 2 and m.split('-')[1] == 'PERP']
         return perp
     
