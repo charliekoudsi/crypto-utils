@@ -19,7 +19,7 @@ class Scraper:
             Outputs results to file.
         '''
         r = []
-        url = f'{self.base_url}asset/candles?limit=5000&resolution={frequency}'
+        url = f'{self.base_url}{asset}/candles?limit=5000&resolution={frequency}'
         temp = requests.get(url).json()['result']
         r.extend(temp)
         while len(temp) >= 4500:
