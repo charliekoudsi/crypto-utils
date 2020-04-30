@@ -1,5 +1,9 @@
 import scraper
 import cointegration
+import process
+import backtest
+import pandas as pd
+import numpy as np
 
 scrpr = scraper.Scraper()
 tester = cointegration.Tester()
@@ -18,7 +22,21 @@ for market in markets:
 
 
 # example of non cointegrated pair
-tester.test('btc_5min.csv','eth_5min.csv')
+tester.test('btc_5min.csv','eth_5min.csv', mode='kalman')
+
+#test normal pairs trading
+quotes_normal = process.process('eth', 'btc', 'eth_5min.csv', 'btc_5min.csv')
+bt1 = backtest.Backtester(quotes_normal, threshold=0.3, fee= 0.0007, t_pen=500)
+
+#test kalman filter
+quotes_kalman = process.process('eth', 'btc', 'eth_5min.csv', 'btc_5min.csv', mode='kalman')
+bt2 = backtest.Backtester(quotes_kalman, threshold=0.75, fee= 0.0007, t_pen=np.inf)
+
+# from these results, we can see that eth-btc is not a good pair to trade
+# if you want more detailed backtest information, you can access each trade with:
+trades = pd.DataFrame(bt1.trades)
+
+
 
 # find all cointegrated pairs
 # assumes you have downloaded all data as shown above
@@ -30,7 +48,7 @@ for i in range(len(markets) - 1):
         asset2_name = asset2.split("-")[0].lower()
         p_value = tester.test(f'{asset1_name}_5min.csv', f'{asset2_name}_5min.csv')
         if p_value < 0.01:
-            print(f'{asset1_name}-{asset2_name} are cointegreated')
+            print(f'{asset1_name}-{asset2_name} are likely cointegreated')
         elif p_value < 0.05:
             print(f'{asset1_name}-{asset2_name} may be cointegreated')
         else:
