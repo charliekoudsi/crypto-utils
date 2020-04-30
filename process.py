@@ -25,6 +25,8 @@ def process(asset_x, asset_y, asset_x_file, asset_y_file, mode='normal'):
         quotes = quotes.iloc[1000:]
     
     quotes = quotes[['time', 'x', 'y', 'z']]
+    quotes['x_mult'] = x_mult
+    quotes['y_mult'] = y_mult
     return quotes
 
 def _process_normal(quotes):
