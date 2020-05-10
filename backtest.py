@@ -19,7 +19,6 @@ class Backtester:
         self.t_pen = t_pen
         self.quotes = quotes
         self.backtest()
-        pprint(self.get_metrics())
         
     def can_open(self, quote):
         if self.in_position and self.elapsed < self.t_pen:
@@ -123,19 +122,38 @@ class Backtester:
                 self.open(quote)
             self.last_z = quote.z
 
+    def get_daily(self):
+        trades = pd.DataFrame(self.trades)
+        trades = trades[trades.type == 'close']
+        trades.set_index('time', inplace=True, drop=True)
+        daily = trades.resample('1D').last()
+        daily.reset_index(inplace=True)
+        daily = daily[['time', 'balance']]
+        return daily
+
     def get_metrics(self):
         returns = round((self.balance - 1000)/10,2)
+        duration = round(len(self.quotes)/(12*24*30), 2)
+        if len(self.trades) <= 2:
+            return {
+                'pct_return': 0,
+                'num_trades': 0,
+                'win_rate': 0,
+                'sharpe': 0,
+                'duration ': f'{duration} months',
+                'threshold': self.threshold
+            }
         trades = pd.DataFrame(self.trades)
         trades = trades[trades.type == 'close']
         trades.set_index('time', inplace=True, drop=True)
         daily = trades.resample('1D').balance.last().pct_change().dropna()
-        duration = round(len(self.quotes)/(12*24*30), 2)
         return {
             'pct_return': returns,
             'num_trades': len(trades) * 4,
             'win_rate': round(len(trades[trades.profit >= 0])/len(trades), 2),
             'sharpe': round(sqrt(365) * daily.mean()/daily.std(), 2),
-            'duration ': f'{duration} months'
+            'duration ': f'{duration} months',
+            'threshold': self.threshold
         }
     
 
